@@ -1,8 +1,8 @@
 function contentLabel(e){return e.getAttribute('aria-label')||e.getAttribute('alt')||e.getAttribute('title')||(e.tagName==='INPUT'?e.value:e.textContent?.trim())||e.querySelector('img')?.getAttribute('alt')||'';}
 function contentNorm(s){return(s||'').normalize('NFKC').replace(/\s/g,'');}
 function contentVisible(e){return !!e.getClientRects().length&&!e.disabled;}
-function contentPage(){const text=contentNorm(document.body?.innerText||'');const correct=location.pathname==='/mypage/M060800.do'||text.includes('内容品を登録する')||(text.includes('発送種別の選択')&&text.includes('EMS'));if(location.origin!=='https://www.int-mypage.post.japanpost.jp'||!correct)throw Error('当前不是内容品登记页。');}
-function contentOne(values,label){let list=[...new Set(values)];list=list.filter(e=>!list.some(other=>other!==e&&typeof other.contains==='function'&&other.contains(e)));if(list.length!==1)throw Error('无法唯一识别'+label+'（'+list.length+'个），请检查官网。');return list[0];}
+function contentPage(){const text=contentNorm(document.body?.innerText||'');const correct=location.pathname==='/mypage/M060800.do'||text.includes('内容品を登録する')||(text.includes('発送種別の選択')&&text.includes('EMS'));if(location.origin!=='https://www.int-mypage.post.japanpost.jp'||!correct)throw Error('Not on the contents registration page.');}
+function contentOne(values,label){let list=[...new Set(values)];list=list.filter(e=>!list.some(other=>other!==e&&typeof other.contains==='function'&&other.contains(e)));if(list.length!==1)throw Error('Cannot uniquely identify '+label+'（'+list.length+' matches); check the website.');return list[0];}
 function contentButtons(root=document){return [...root.querySelectorAll('button,a,input[type="button"],input[type="submit"],input[type="image"],img,[onclick],[role="button"]')].filter(contentVisible);}
 function markEMSContent(){
   try{
@@ -28,16 +28,16 @@ function markContentInputs(){
     for(const [key,names] of Object.entries(aliases)){
       const found=all.filter(e=>names.some(n=>contentNorm(e.placeholder)===n));
       if(found.length===1)fields[key]=found[0];
-      else if(found.length>1)throw Error('输入框重复：'+key);
+      else if(found.length>1)throw Error('Duplicate input field: '+key);
     }
     if(Object.keys(fields).length<5){
       let row=fields.name?.closest('tr');
       if(!row)row=contentOne([...document.querySelectorAll('tr')].filter(r=>{
         const c=[...r.children].filter(e=>['TD','TH'].includes(e.tagName));
         return c.length>=5&&contentTextInputs(c[0]).length===1&&contentTextInputs(c[1]).length===1&&contentTextInputs(c[2]).length>=1&&contentTextInputs(c[3]).length===1;
-      }),'内容品输入行');
+      }),'item input row');
       const c=[...row.children].filter(e=>['TD','TH'].includes(e.tagName));
-      if(c.length<5)throw Error('内容品输入行列数不足。');
+      if(c.length<5)throw Error('Not enough columns in the item input row.');
       fields.name??=contentOne(contentTextInputs(c[0]),'内容品名');
       fields.unitPrice??=contentOne(contentTextInputs(c[1]),'単価');
       fields.quantity??=contentOne(contentTextInputs(c[3]),'個数');
@@ -48,17 +48,17 @@ function markContentInputs(){
         else {
           const next=row.nextElementSibling;
           const nextCells=next?[...next.children].filter(e=>['TD','TH'].includes(e.tagName)):[];
-          if(nextCells.length===2)fields.hsCode=contentOne(contentTextInputs(nextCells[1]),'下一行 HS代码');
+          if(nextCells.length===2)fields.hsCode=contentOne(contentTextInputs(nextCells[1]),'HS code in the next row');
         }
       }
     }
-    for(const key of Object.keys(aliases))if(!fields[key])throw Error('未识别输入框：'+key+'；输入区可能尚未展开。');
+    for(const key of Object.keys(aliases))if(!fields[key])throw Error('Input field not identified: '+key+'; the input area may not be expanded.');
     const selects=[...document.querySelectorAll('select')].filter(contentVisible);
-    fields.currency=contentOne(selects.filter(el=>[...el.options].some(o=>contentNorm(o.textContent)==='JPY/円')),'币种');
+    fields.currency=contentOne(selects.filter(el=>[...el.options].some(o=>contentNorm(o.textContent)==='JPY/円')),'currency');
     const countryNorm=s=>contentNorm(s).replace(/[()]/g,'').toUpperCase();
-    fields.origin=contentOne(selects.filter(el=>el!==fields.currency&&[...el.options].some(o=>o.value==='JP'||['JAPAN','日本','JAPAN日本','日本JAPAN'].includes(countryNorm(o.textContent)))),'原产国下拉框');
+    fields.origin=contentOne(selects.filter(el=>el!==fields.currency&&[...el.options].some(o=>o.value==='JP'||['JAPAN','日本','JAPAN日本','日本JAPAN'].includes(countryNorm(o.textContent)))),'origin dropdown');
     fields.confirm=contentOne(contentButtons().filter(el=>contentNorm(contentLabel(el))==='確定'),'確定');
-    if(new Set(Object.values(fields)).size!==Object.keys(fields).length)throw Error('内容品输入框对应关系重复。');
+    if(new Set(Object.values(fields)).size!==Object.keys(fields).length)throw Error('Duplicate item field mapping.');
     for(const [key,el] of Object.entries(fields)){
       document.querySelectorAll('[data-jp-content-'+key+']').forEach(e=>e.removeAttribute('data-jp-content-'+key));
       el.setAttribute('data-jp-content-'+key,'true');

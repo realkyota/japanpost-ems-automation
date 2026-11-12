@@ -16,7 +16,7 @@ macOS 上で Python と Playwright を使い、国際郵便マイページの EM
 
 ## 実行方法
 
-Python 3.10 以上と Playwright が動作する macOS が必要です。ターミナルの表示は現在中国語です。
+Python 3.10 以上と Playwright が動作する macOS が必要です。ターミナルの表示とコマンドヘルプは英語です。
 
 ```bash
 # 任意：ログイン情報をキーチェーンに保存

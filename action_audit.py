@@ -12,8 +12,8 @@ class ActionAudit:
     def clean(self, text):
         text = str(text)
         for secret in sorted(self.secrets, key=len, reverse=True):
-            text = text.replace(secret, '[已隐藏]')
-        text = re.sub(r'https?://[^\s]+', '[网站链接]', text)
+            text = text.replace(secret, '[redacted]')
+        text = re.sub(r'https?://[^\s]+', '[website URL]', text)
         return text.replace('\n', ' ')[:180]
 
     def on_request(self, request):
@@ -47,9 +47,9 @@ class ActionAudit:
         self.secrets.clear()
 
     def summary(self, unknown_if_empty=True):
-        lines = ['观察到官网 POST 请求：' + str(len(self.posts)) + ' 次。']
-        lines += ['官网弹窗：' + text for text in self.dialogs[-2:]]
-        lines += ['官网脚本错误：' + text for text in self.errors[-2:]]
+        lines = ['Observed website POST requests: ' + str(len(self.posts)) + ' requests.']
+        lines += ['Website dialog: ' + text for text in self.dialogs[-2:]]
+        lines += ['Website script error: ' + text for text in self.errors[-2:]]
         if unknown_if_empty and not self.posts and not self.errors and not self.dialogs:
-            lines.append('未观察到提交请求或页面报错；尚不能确定点击为何未生效。')
+            lines.append('No submission request or page error observed; the reason for the ineffective click is unknown.')
         return '\n'.join(lines)

@@ -60,12 +60,12 @@ class PageStateTests(unittest.TestCase):
 
     def test_timeout_keeps_last_field_diagnostic(self):
         class Page:
-            def evaluate(self, expression): return {'ok':False,'message':'未识别 HS代码'}
+            def evaluate(self, expression): return {'ok':False,'message':'HS code not identified'}
             def wait_for_timeout(self, interval): pass
         with patch('page_state.time.monotonic',side_effect=[0,0.1,1]):
             with self.assertRaises(PagePollTimeout) as error:
                 poll_evaluate(Page(),'example()',lambda value:value.get('ok') is True,timeout=500)
-        self.assertEqual(error.exception.last['message'],'未识别 HS代码')
+        self.assertEqual(error.exception.last['message'],'HS code not identified')
 
 
 if __name__=='__main__': unittest.main()

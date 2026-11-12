@@ -2,18 +2,18 @@
 function parseRecipient(text) {
   const data = JSON.parse(text.replace(/^\s*```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, ''));
   const keys = ['name','country','address1','address2','city','state','postalCode','phone','fax','email'];
-  if (!data || Array.isArray(data) || typeof data !== 'object') throw Error('请输入一个收件人 JSON 对象。');
-  for (const key of Object.keys(data)) if (!keys.includes(key)) throw Error('未知字段：' + key);
+  if (!data || Array.isArray(data) || typeof data !== 'object') throw Error('Supply a recipient JSON object.');
+  for (const key of Object.keys(data)) if (!keys.includes(key)) throw Error('Unknown field: ' + key);
   const result = {};
   for (const key of keys) {
-    if (data[key] !== undefined && typeof data[key] !== 'string') throw Error(key + ' 必须使用字符串，邮编和电话也要加双引号。');
+    if (data[key] !== undefined && typeof data[key] !== 'string') throw Error(key + ' must be a string; quote postal codes and phone numbers too.');
     result[key] = (data[key] || '').trim();
-    if (/[\r\n\u0000-\u001f]/.test(result[key])) throw Error(key + ' 不能包含换行或控制字符。');
+    if (/[\r\n\u0000-\u001f]/.test(result[key])) throw Error(key + ' cannot contain line breaks or control characters.');
   }
-  for (const key of ['name','country','address2','city']) if (!result[key]) throw Error('缺少必填字段：' + key);
+  for (const key of ['name','country','address2','city']) if (!result[key]) throw Error('Missing required field: ' + key);
   result.country = result.country.toUpperCase();
-  if (!/^[A-Z]{2}$/.test(result.country)) throw Error('country 请使用两位国家/地区代码，例如 US、DK、GB、TW。');
-  if (result.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(result.email)) throw Error('邮箱格式不正确。');
+  if (!/^[A-Z]{2}$/.test(result.country)) throw Error('country must use a two-letter country/region code, e.g. US, DK, GB, TW.');
+  if (result.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(result.email)) throw Error('Invalid email format.');
   return result;
 }
 
@@ -21,7 +21,7 @@ function parseRecipient(text) {
 function fillJapanPost(recipient, testing = false) {
   try {
     if (!testing && (location.origin !== 'https://www.int-mypage.post.japanpost.jp' || location.pathname !== '/mypage/M060400.do')) {
-      throw Error('请切换到日本邮政「お届け先情報の入力」页面（M060400.do）。');
+      throw Error('Open the Japan Post 「お届け先情報の入力」 page (M060400.do).');
     }
     const definitions = [
       ['name', /^お名前/], ['country', /^国名[・･]?地域/],
@@ -40,14 +40,14 @@ function fillJapanPost(recipient, testing = false) {
         const controls = [...row.querySelectorAll('input:not([type]),input[type="text"],input[type="email"],input[type="tel"],select,textarea')].filter(visible);
         if (controls.length === 1) candidates.push(controls[0]);
       }
-      if (candidates.length !== 1) throw Error('无法唯一识别字段 ' + key + '。页面结构可能已变化，尚未填写任何内容。');
+      if (candidates.length !== 1) throw Error('Cannot uniquely identify field ' + key + '. The page structure may have changed; nothing filled.');
       mapped.push({key, el:candidates[0], value:recipient[key], old:candidates[0].value});
     }
-    if (new Set(mapped.map(x=>x.el)).size !== mapped.length) throw Error('字段识别发生重复，已停止。');
+    if (new Set(mapped.map(x=>x.el)).size !== mapped.length) throw Error('Duplicate field mapping; stopped.');
     const forms = new Set(mapped.map(x=>x.el.form));
-    if (forms.size !== 1) throw Error('字段不在同一表单，已停止。');
+    if (forms.size !== 1) throw Error('Fields are not in the same form; stopped.');
     const country = mapped.find(x=>x.key === 'country');
-    if (country.el.tagName !== 'SELECT') throw Error('国名字段不是下拉菜单，已停止。');
+    if (country.el.tagName !== 'SELECT') throw Error('Country field is not a dropdown; stopped.');
     const aliases = {US:['UNITED STATES','UNITED STATES OF AMERICA','アメリカ合衆国','米国'],GB:['UNITED KINGDOM','GREAT BRITAIN','英国','イギリス'],DK:['DENMARK','デンマーク'],CN:['CHINA','中国'],TW:['TAIWAN','台湾'],HK:['HONG KONG','香港'],MO:['MACAO','MACAU','マカオ']};
     const names = [recipient.country, ...(aliases[recipient.country] || [])];
     for (const locale of ['en','ja']) {
@@ -56,29 +56,29 @@ function fillJapanPost(recipient, testing = false) {
     const matches = [...country.el.options].filter(o => !o.disabled && o.value && (
       norm(o.value) === recipient.country || names.some(n=>norm(o.textContent) === norm(n))
     ));
-    if (matches.length !== 1) throw Error('无法唯一识别国名 ' + recipient.country + '，尚未填写。请把该国家在下拉菜单中的显示名称发给我。');
+    if (matches.length !== 1) throw Error('Cannot uniquely identify country ' + recipient.country + '; nothing filled. Check the country label in the dropdown.');
     country.value = matches[0].value;
     for (const x of mapped) {
-      if (x.el.tagName === 'SELECT' && x !== country) throw Error('出现未适配的下拉字段：' + x.key);
-      if (x.el.maxLength >= 0 && x.value.length > x.el.maxLength) throw Error(x.key + ' 超过官网长度限制 ' + x.el.maxLength + '，未填写。请重新拆分地址。');
+      if (x.el.tagName === 'SELECT' && x !== country) throw Error('Unsupported dropdown field: ' + x.key);
+      if (x.el.maxLength >= 0 && x.value.length > x.el.maxLength) throw Error(x.key + ' exceeds website length limit ' + x.el.maxLength + '; not filled. Split the address into shorter lines.');
     }
     // Set country first, then address fields. Never truncate or submit.
     const order = [country, ...mapped.filter(x=>x!==country)];
     try {
       for (const x of order) {
-        if (!x.el.isConnected) throw Error('页面刷新了表单，请重试。');
+        if (!x.el.isConnected) throw Error('The page replaced the form. Try again.');
         const proto = x.el.tagName === 'SELECT' ? HTMLSelectElement.prototype : x.el.tagName === 'TEXTAREA' ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
         Object.getOwnPropertyDescriptor(proto,'value').set.call(x.el,x.value);
         x.el.dispatchEvent(new Event('input',{bubbles:true}));
         x.el.dispatchEvent(new Event('change',{bubbles:true}));
       }
-      if (mapped.some(x=>!x.el.isConnected || x.el.value !== x.value)) throw Error('官网未保留所有输入值。');
+      if (mapped.some(x=>!x.el.isConnected || x.el.value !== x.value)) throw Error('Website did not retain all input values.');
     } catch (error) {
       for (const x of mapped) if (x.el.isConnected) { x.el.value=x.old; x.el.dispatchEvent(new Event('change',{bubbles:true})); }
-      throw Error(error.message + ' 已尝试恢复原值，请检查页面。');
+      throw Error(error.message + ' Attempted to restore original values; check the page.');
     }
     mapped[0].el.focus();
-    return {ok:true,message:'已填入 10 个收件人字段（空白可选项已清空）。请检查国名、地址和邮编，再点击官网「次へ」。'};
+    return {ok:true,message:'Filled 10 recipient fields (blank optional fields cleared). Review country, address and postal code, then click 「次へ」.'};
   } catch(error) { return {ok:false,message:error.message}; }
 }
 if (typeof module !== 'undefined') module.exports={parseRecipient,fillJapanPost};

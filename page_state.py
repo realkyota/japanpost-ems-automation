@@ -27,7 +27,7 @@ def path_matches(url, path):
 
 class PagePollTimeout(TimeoutError):
     def __init__(self, last):
-        super().__init__('页面等待超时')
+        super().__init__('Timed out waiting for page state')
         self.last = last
 
 

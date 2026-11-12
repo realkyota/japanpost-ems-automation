@@ -2,11 +2,11 @@
 set -euo pipefail
 cd -- "$(dirname -- "$0")"
 if ! command -v python3 >/dev/null 2>&1; then
-  echo "请先从 python.org 安装 Python 3.10 或更新版本。"
-  read -r -p "按回车退出…" unused
+  echo "Install Python 3.10 or newer from python.org first."
+  read -r -p "Press Enter to exit..." unused
   exit 1
 fi
-python3 -c 'import sys; assert sys.version_info >= (3,10), "需要 Python 3.10 或更新版本"'
+python3 -c 'import sys; assert sys.version_info >= (3,10), "Python 3.10 or newer is required"'
 if [ ! -x .venv/bin/python ]; then
   python3 -m venv .venv
 fi

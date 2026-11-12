@@ -4,7 +4,7 @@
 
 ## 运行
 
-需要 Python 3.10+ 和支持 Playwright 的 macOS。在程序目录打开终端：
+需要 Python 3.10+ 和支持 Playwright 的 macOS。终端进度、操作提示、错误信息和 CLI 帮助使用英语，官网按钮名称保留日语。在程序目录打开终端：
 
 ```bash
 bash setup_login.command

@@ -62,7 +62,7 @@ class DiagnosticJournal:
         try:
             _write_report(self.path,report)
         except OSError as error:
-            print('诊断文件更新失败：'+type(error).__name__+'；路径：'+str(self.path))
+            print('Diagnostic update failed: '+type(error).__name__+'; path: '+str(self.path))
 
 
 def reveal_report(path):
@@ -83,8 +83,8 @@ def write_menu_diagnostic(page, output, error, pages=(), attempts=()):
     if hasattr(error,'last'):
         report['lastStages']=error.last
     # Native menu click errors contain selectors, not credential-entry values.
-    message=re.sub(r'https?://\S+','[网址已省略]',str(error) if error is not None else '')
-    message=re.sub(r'value=[\"\'][^\"\']*[\"\']','value=[已省略]',message)
+    message=re.sub(r'https?://\S+','[URL omitted]',str(error) if error is not None else '')
+    message=re.sub(r'value=[\"\'][^\"\']*[\"\']','value=[omitted]',message)
     report['error']=message[:600]
     # Persist the basic report before trying a possibly failing DOM inspection.
     _write_report(path,report)

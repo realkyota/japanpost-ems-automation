@@ -23,7 +23,7 @@ The working version was iterated against user-reported screens and manually exer
 
 ## Requirements
 
-macOS, Python 3.10+, a supported Playwright browser environment, an internet connection, and an existing Japan Post International Mail My-page account. Terminal messages are currently in Chinese. Node.js is needed only for JavaScript tests.
+macOS, Python 3.10+, a supported Playwright browser environment, an internet connection, and an existing Japan Post International Mail My-page account. Terminal messages and CLI help are in English. Node.js is needed only for JavaScript tests.
 
 ## Run locally
 

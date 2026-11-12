@@ -44,7 +44,7 @@ class DiagnosticCreationTests(unittest.TestCase):
             self.assertIn(str(path),stdout.getvalue())
             report=json.loads(path.read_text())
             self.assertEqual(report['stage'],'exit_exception')
-            self.assertIn('防重复',report['events'][-1]['message'])
+            self.assertIn('Duplicate protection',report['events'][-1]['message'])
 
     def test_missing_configuration_still_has_report(self):
         with TemporaryDirectory() as directory:

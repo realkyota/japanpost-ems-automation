@@ -23,7 +23,7 @@ class AuditTests(unittest.TestCase):
             dialog=Dialog()
             page.listeners['dialog'](dialog)
             summary=audit.summary()
-            self.assertIn('POST 请求：1',summary)
+            self.assertIn('POST requests: 1',summary)
             self.assertNotIn('FAKE_PRIVATE_VALUE',summary)
             self.assertNotIn('secret=x',summary)
             self.assertEqual(audit.posts,['/mypage/M010000.do'])
@@ -31,7 +31,7 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(page.listeners,{})
         self.assertEqual(audit.secrets,[])
     def test_no_request_is_unknown_not_a_success(self):
-        self.assertIn('尚不能确定',ActionAudit(Page()).summary())
+        self.assertIn('reason for the ineffective click is unknown',ActionAudit(Page()).summary())
     def test_outside_origin_is_not_counted(self):
         req=Request();req.url='https://example.com/login'
         audit=ActionAudit(Page());audit.on_request(req)
