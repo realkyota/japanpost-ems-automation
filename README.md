@@ -57,7 +57,7 @@ bash run.command --forget-login
 
 The program handles one recipient and one item per run. JSON controls the actual item name, unit price, quantity, weight and gift/sale classification. Screenshots or free-form text must be converted to JSON separately; OCR and chat integration are not built into this application.
 
-The historical personal workflow defaults to origin `JP` and HS code `9503002190` when omitted. These are specific to the original use case, not general classification advice; supply the correct origin and HS code explicitly for your goods. Confirm the actual contents and the website's dangerous-goods declaration before setting `noDangerousGoods` to `true`. Ship dates in JSON are overridden at runtime with the next day in Japan time.
+The public edition has no personal parcel defaults. Supply the actual origin explicitly; provide the appropriate HS code where required. Sample names, addresses, amounts and weights are synthetic placeholders. `000000` is a dummy HS value for offline tests, not a customs classification. Do not submit the example to the website. Confirm the actual contents and the website's dangerous-goods declaration before setting `noDangerousGoods` to `true`. Ship dates in JSON are overridden at runtime with the next day in Japan time.
 
 ## Duplicate prevention and privacy
 

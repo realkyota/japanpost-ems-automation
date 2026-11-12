@@ -1,11 +1,11 @@
 {
   "_example": true,
   "recipient": {
-    "name": "EXAMPLE ONLY",
+    "name": "SAMPLE RECIPIENT",
     "country": "US",
-    "address1": "Apt 12",
-    "address2": "123 Example Street",
-    "city": "Example City",
+    "address1": "SAMPLE UNIT",
+    "address2": "SAMPLE STREET",
+    "city": "SAMPLE CITY",
     "state": "CA",
     "postalCode": "00000",
     "phone": "",
@@ -14,16 +14,17 @@
   },
   "shipment": {
     "item": {
-      "name": "Doll",
-      "unitPrice": "1000",
+      "name": "SAMPLE ITEM",
+      "unitPrice": "100",
       "quantity": "1",
-      "weightGrams": "500",
-      "origin": "JP"
+      "weightGrams": "100",
+      "origin": "JP",
+      "hsCode": "000000"
     },
     "category": "贈物",
     "paid": false,
     "invoice": "prescribed",
     "noDangerousGoods": true,
-    "totalWeightGrams": "700"
+    "totalWeightGrams": "150"
   }
 }

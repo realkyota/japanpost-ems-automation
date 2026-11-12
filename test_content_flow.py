@@ -38,7 +38,7 @@ class Page:
             self.actions.append(('inputs-check',))
             return {'ok': True}
         if script == 'registeredContents()':
-            return [{'name':'Doll','quantity':'1'}] if self.registered else []
+            return [{'name':'SAMPLE ITEM','quantity':'1'}] if self.registered else []
         return {'ok':True}
     def wait_for_function(self, *args, **kwargs): self.actions.append(('wait',))
 
@@ -47,7 +47,7 @@ class ContentBot(Bot):
     def __init__(self, page):
         self.page = page
         self.data = valid_data()
-        self.data['shipment']['item'].update(unitPrice='2000', weightGrams='2000')
+        self.data['shipment']['item'].update(unitPrice='100', weightGrams='100')
         self.data['shipment'].pop('totalWeightGrams')
         validate(self.data)
     def load_helpers(self): pass
@@ -59,12 +59,15 @@ class ContentTests(unittest.TestCase):
         self.assertEqual(country_option([{'value':'392','label':'JAPAN（日本）'}], 'JP'), '392')
         with self.assertRaises(UserError):
             country_option([{'value':'a','label':'JAPAN'},{'value':'b','label':'日本'}], 'JP')
-    def test_confirmed_defaults_added_to_old_json(self):
+    def test_origin_required_and_hs_not_inferred(self):
         data = valid_data()
         data['shipment']['item'].pop('origin', None)
+        with self.assertRaises(UserError):
+            validate(data)
+        data['shipment']['item']['origin'] = 'JP'
+        data['shipment']['item'].pop('hsCode', None)
         validate(data)
-        self.assertEqual(data['shipment']['item']['origin'], 'JP')
-        self.assertEqual(data['shipment']['item']['hsCode'], '9503002190')
+        self.assertNotIn('hsCode', data['shipment']['item'])
     def test_ems_native_click_before_waiting_for_inputs(self):
         page = Page()
         ContentBot(page).select_ems_goods()
@@ -72,7 +75,7 @@ class ContentTests(unittest.TestCase):
     def test_fills_selects_and_confirms_exact_requested_values(self):
         page = Page()
         ContentBot(page).fill_and_confirm_item()
-        self.assertEqual(page.values, {'name':'Doll','unitPrice':'2000','weightGrams':'2000','hsCode':'9503002190','quantity':'1','currency':'JPY','origin':'392'})
+        self.assertEqual(page.values, {'name':'SAMPLE ITEM','unitPrice':'100','weightGrams':'100','hsCode':'000000','quantity':'1','currency':'JPY','origin':'392'})
         self.assertEqual([a for a in page.actions if a[0]=='click'], [('click','confirm')])
         self.assertTrue(page.registered)
     def test_existing_registered_item_never_added_again(self):

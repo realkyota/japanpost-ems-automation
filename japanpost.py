@@ -82,9 +82,9 @@ def validate(data):
     item = shipment.get('item')
     if not isinstance(item, dict) or set(item) - {'name', 'unitPrice', 'quantity', 'weightGrams', 'origin', 'hsCode'}:
         raise UserError('本版需填写一条 item 对象。')
-    # User-confirmed fixed parcel settings; explicit JSON values may override these.
-    item.setdefault('origin', 'JP')
-    item.setdefault('hsCode', '9503002190')
+    # Public edition: shipping declarations must come from the input file.
+    if not isinstance(item.get('origin'), str) or not re.fullmatch('[A-Z]{2}', item['origin']):
+        raise UserError('请在 JSON 中明确填写 item.origin（两位原产国代码）。')
     for key in ['name', 'unitPrice', 'quantity']:
         if not isinstance(item.get(key), str) or not item[key].strip():
             raise UserError(f'缺少字符串 item.{key}。')

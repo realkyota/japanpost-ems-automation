@@ -79,7 +79,7 @@ function operateShipment(data, action) {
     if(action==='item'){
       if(!isContents)throw Error('请进入内容品登记页面。');
       if(!data.item)throw Error('缺少 item 内容品数据。');
-      if(clickables().some(el=>norm(description(el))==='削除'))throw Error('已有登记内容品，未新增或修改，避免重复。要保留现有 Doll 时可跳过这一步；更换时请先在官网编辑或删除。');
+      if(clickables().some(el=>norm(description(el))==='削除'))throw Error('已有登记内容品，未新增或修改，避免重复。要保留现有内容品时可跳过这一步；更换时请先在官网编辑或删除。');
       const input=(placeholder)=>one([...document.querySelectorAll('input')].filter(el=>visible(el)&&norm(el.placeholder)===norm(placeholder)),placeholder);
       const name=input('内容品名');const row=name.closest('tr');if(!row)throw Error('找不到内容品输入行。');
       const item=data.item;
