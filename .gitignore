@@ -1,0 +1,17 @@
+# Local environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+# Recipient data, browser sessions and runtime evidence
+*.json
+!shipment.example.json
+output/
+upload/
+*.pdf
+*.png
+*.jpg
+*.jpeg
+*.zip
+.env
+.env.*

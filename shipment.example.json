@@ -1,0 +1,29 @@
+{
+  "_example": true,
+  "recipient": {
+    "name": "EXAMPLE ONLY",
+    "country": "US",
+    "address1": "Apt 12",
+    "address2": "123 Example Street",
+    "city": "Example City",
+    "state": "CA",
+    "postalCode": "00000",
+    "phone": "",
+    "fax": "",
+    "email": ""
+  },
+  "shipment": {
+    "item": {
+      "name": "Doll",
+      "unitPrice": "1000",
+      "quantity": "1",
+      "weightGrams": "500",
+      "origin": "JP"
+    },
+    "category": "贈物",
+    "paid": false,
+    "invoice": "prescribed",
+    "noDangerousGoods": true,
+    "totalWeightGrams": "700"
+  }
+}
